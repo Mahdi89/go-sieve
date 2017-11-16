@@ -37,19 +37,7 @@ func Filter(in <-chan int, out chan<- int, prime int) {
 }
 
 // The prime sieve: Daisy-chain Filter processes together.
-func Sieve() {
-	ch := make(chan int) // Create a new channel.
-	go Generate(ch)      // Start Generate() as a subprocess.
-	for {
-		prime := <-ch
-		print(prime, "\n")
-		ch1 := make(chan int)
-		go Filter(ch, ch1, prime)
-	//	ch = ch1
-	}
-}
-
-func Top() {
+func Top(
 	addrShared uintptr,
 
 	// The first set of arguments will be the ports for interacting with host 
@@ -61,6 +49,19 @@ func Top() {
 	memWriteData chan<- axiprotocol.WriteData,
 	memWriteResp <-chan axiprotocol.WriteResp){
 
+        ch := make(chan int) // Create a new channel.
+        go Generate(ch)      // Start Generate() as a subprocess.
+        for {
+                prime := <-ch
+                print(prime, "\n")
+                ch1 := make(chan int)
+                go Filter(ch, ch1, prime)
 
-	Sieve()
+		// Write it back to the pointer the host requests
+		aximemory.WriteUInt32(
+			memWriteAddr, memWriteData, memWriteResp, false, addrShared, uint32(<-ch1))
+
+		ch = aximemory.ReadUInt32(
+			memReadAddr, memReadData, false, addrShared)
+	}
 }
