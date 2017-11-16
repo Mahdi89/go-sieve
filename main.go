@@ -9,9 +9,18 @@
 
 package main
 
+import (
+        // Import the entire framework (including bundled verilog)
+        _ "sdaccel"
+
+        // Use the new AXI protocol package
+        aximemory "axi/memory"
+        axiprotocol "axi/protocol"
+)
+
 // Send the sequence 2, 3, 4, ... to channel 'ch'.
 func Generate(ch chan<- int) {
-	for i := 2; ; i++ {
+	for i := 2; i < 10; i++ {
 		ch <- i // Send 'i' to channel 'ch'.
 	}
 }
@@ -36,10 +45,22 @@ func Sieve() {
 		print(prime, "\n")
 		ch1 := make(chan int)
 		go Filter(ch, ch1, prime)
-		ch = ch1
+	//	ch = ch1
 	}
 }
 
-func main() {
+func Top() {
+	addrShared uintptr,
+
+	// The first set of arguments will be the ports for interacting with host 
+	// The second set of arguments will be the ports for interacting with memory
+	memReadAddr chan<- axiprotocol.Addr,
+	memReadData <-chan axiprotocol.ReadData,
+
+	memWriteAddr chan<- axiprotocol.Addr,
+	memWriteData chan<- axiprotocol.WriteData,
+	memWriteResp <-chan axiprotocol.WriteResp){
+
+
 	Sieve()
 }
