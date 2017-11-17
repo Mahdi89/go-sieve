@@ -70,7 +70,7 @@ func main() {
 	// Exit with an error if the value is not correct
 	if expected[0] != ret {
 		// Print the value we got from the FPGA
-		fmt.Printf("Expected %b.0, got 0.%b (in binary)\n", expected[1], ret)
+		fmt.Printf("Expected %d, got %d\n", expected[3], ret)
 		os.Exit(1)
 	}
 
