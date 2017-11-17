@@ -4,7 +4,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"xcl"
-	"os"
+//	"os"
         "testing"
 )
 
@@ -29,18 +29,6 @@ func main() {
 	krnl := world.Import("kernel_test").GetKernel("reconfigure_io_sdaccel_builder_stub_0_1")
 	defer krnl.Release()
 
-//	var fpath string
-//	input = utils.load_data(fpath)
-
-	//load validations 
-//	test := bnn.ReadImage("dataset")
-//	fmt.Println(test)
-
-	//reshape image 
-//	nw_image:= bnn.ReshapeImage(image)
-//	fmt.Println(nw_image)
-
-
         // Allocate a buffer on the FPGA to store the return value of our computation
         // The shared mem locations between host-kernel is a 10-uint32 set for 10 prime nums, 
 	// so we need 10 * 4 bytes to store it
@@ -59,19 +47,11 @@ func main() {
 	fmt.Printf("%s\n", result.String())
 
 	// Decode that byte slice into the uint32 we're expecting
-	var ret uint32
+	var ret [10]uint32
 	err := binary.Read(buffShared.Reader(), binary.LittleEndian, &ret)
 	if err != nil {
 		fmt.Println("binary.Read failed:", err)
 	}
-	// Compute the expected result 
-	expected := [4]uint32{2,3,5,7}
-
-	// Exit with an error if the value is not correct
-	if expected[0] != ret {
-		// Print the value we got from the FPGA
-		fmt.Printf("Expected %d, got %d\n", expected[3], ret)
-		os.Exit(1)
-	}
+        fmt.Printf("Prime numbers %d\n", ret)
 
 }
