@@ -32,11 +32,13 @@ import (
 func Filter(in [10]uint32, ch chan<- [10]uint32, prime uint32){
 
 	out := [10]uint32{0}
-	for i := 0; i < 10; i++ {		
+	index := uint32(0) 
+	for i := 0; i < 10; i++ {
 
 		val := in[i] // Receive value of new variable 'val' from 'in'.
 		if val%prime != 0 {
-			out[i] = val // Send 'val' to channel 'out'.
+			out[index] = val // Send 'val' to channel 'out'.
+			index++
 		}
 	}
 	ch <- out
@@ -62,9 +64,10 @@ func Top(
 		 [10]uint32{0},
 		 [10]uint32{0}}
 
-//      ch := make(chan int) // Create a new channel.
-//      go Generate(ch)      // Start Generate() as a subprocess.
-//	sharedMem[0][0] = <-ch
+	// Write the first prime (2) back to the pointer the host requests
+	aximemory.WriteUInt32(
+		memWriteAddr, memWriteData, memWriteResp, false, addrShared, uint32(sharedMem[0][0]))
+
         for i := 0; i < 4; i++{
                 //  prime := <-ch
 		prime := sharedMem[i][0]
@@ -72,9 +75,10 @@ func Top(
                 go Filter(sharedMem[i], ch, prime)
 		//copy out chan to the next vector 
 		sharedMem[i+1] = <-ch
+		// Write it back to the pointer the host requests
+		aximemory.WriteUInt32(
+			memWriteAddr, memWriteData, memWriteResp, false, addrShared + uintptr((i+1)*4), uint32(sharedMem[i+1][0]))
+
 	}
-	// Write it back to the pointer the host requests
-	aximemory.WriteUInt32(
-		memWriteAddr, memWriteData, memWriteResp, false, addrShared, uint32(sharedMem[4][0]))
 
 }
